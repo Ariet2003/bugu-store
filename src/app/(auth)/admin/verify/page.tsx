@@ -219,10 +219,10 @@ export default function AdminVerify() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-2xl shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8 p-6 sm:p-8 lg:p-10 bg-gray-800 rounded-2xl shadow-2xl">
         <div className="flex flex-col items-center">
-          <div className="w-24 h-24 relative">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 relative">
             <Image
               src="/logo-bugu.svg"
               alt="Bugu Store Logo"
@@ -231,19 +231,20 @@ export default function AdminVerify() {
               priority
             />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+          <h2 className="mt-4 sm:mt-6 text-center text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-tight">
             Двухфакторная аутентификация
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-400">
+          <p className="mt-2 text-center text-xs sm:text-sm text-gray-400 px-2">
             Проверочный код отправлен в Telegram
           </p>
-          <div className="mt-2 text-center text-sm text-indigo-400">
+          <div className="mt-2 text-center text-xs sm:text-sm text-indigo-400 font-medium">
             Истекает через: {formatTime(timeLeft)}
           </div>
         </div>
 
-        <div className="mt-8 space-y-6">
-          <div className="flex justify-center space-x-3">
+        <div className="mt-6 sm:mt-8 space-y-6">
+          {/* Поля для кода - адаптивные размеры */}
+          <div className="flex justify-center space-x-2 sm:space-x-3">
             {code.map((digit, index) => (
               <input
                 key={index}
@@ -252,7 +253,7 @@ export default function AdminVerify() {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={1}
-                className="w-12 h-12 text-center text-2xl font-bold bg-gray-700 border-transparent focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white rounded-lg"
+                className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-center text-lg sm:text-xl lg:text-2xl font-bold bg-gray-700 border-transparent focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-white rounded-lg transition-all duration-200 touch-manipulation"
                 value={digit}
                 onChange={(e) => handleCodeChange(index, e.target.value.replace(/\D/g, ''))}
                 onKeyDown={(e) => handleKeyDown(index, e)}
@@ -262,21 +263,23 @@ export default function AdminVerify() {
             ))}
           </div>
 
+          {/* Сообщение об ошибке */}
           {error && (
-            <div className="bg-red-500/10 text-red-400 text-sm p-3 rounded-lg text-center">
+            <div className="bg-red-500/10 text-red-400 text-xs sm:text-sm p-3 rounded-lg text-center mx-2">
               {error}
             </div>
           )}
 
-          <div className="space-y-3">
+          {/* Кнопки - адаптивные отступы и размеры */}
+          <div className="space-y-3 sm:space-y-4">
             <button
               onClick={() => handleSubmit()}
               disabled={isLoading || code.some(digit => !digit)}
-              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-full flex justify-center py-3 sm:py-4 px-4 border border-transparent text-sm sm:text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 touch-manipulation"
             >
               {isLoading ? (
                 <svg
-                  className="animate-spin h-5 w-5 text-white"
+                  className="animate-spin h-5 w-5 sm:h-6 sm:w-6 text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -302,8 +305,8 @@ export default function AdminVerify() {
 
             <button
               onClick={handleResendCode}
-              disabled={isLoading || timeLeft > 240} // Разрешаем отправку только после 1 минуты
-              className="w-full py-3 px-4 text-sm font-medium text-gray-400 hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              disabled={isLoading || timeLeft > 240}
+              className="w-full py-3 sm:py-4 px-4 text-xs sm:text-sm font-medium text-gray-400 hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 touch-manipulation"
             >
               {timeLeft > 240 ? 
                 `Отправить повторно (${formatTime(timeLeft - 240)})` : 
@@ -313,10 +316,11 @@ export default function AdminVerify() {
           </div>
         </div>
 
-        <div className="mt-6">
+        {/* Кнопка возврата */}
+        <div className="mt-6 pt-4 border-t border-gray-700">
           <button
             onClick={() => router.push('/admin/login')}
-            className="w-full text-center text-sm text-gray-400 hover:text-gray-300 transition-colors"
+            className="w-full text-center text-xs sm:text-sm text-gray-400 hover:text-gray-300 transition-colors py-2 touch-manipulation"
           >
             ← Вернуться к входу
           </button>
