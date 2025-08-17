@@ -14,7 +14,7 @@ export async function GET() {
 
     try {
       // Основные счетчики
-      totalProducts = await prisma.product.count({ where: { is_active: true } });
+      totalProducts = await prisma.product.count({ where: { isActive: true } });
     } catch (error) {
       console.log('Products count error:', error);
     }
@@ -27,16 +27,16 @@ export async function GET() {
 
     try {
       const revenueResult = await prisma.order.aggregate({
-        _sum: { total_price: true },
-        where: { status: { in: ['paid', 'shipped', 'completed'] } }
+        _sum: { totalPrice: true },
+        where: { status: { in: ['PAID', 'SHIPPED', 'COMPLETED'] } }
       });
-      totalRevenue = Number(revenueResult._sum.total_price || 0);
+      totalRevenue = Number(revenueResult._sum.totalPrice || 0);
     } catch (error) {
       console.log('Revenue error:', error);
     }
 
     try {
-      pendingOrders = await prisma.order.count({ where: { status: 'pending' } });
+      pendingOrders = await prisma.order.count({ where: { status: 'PENDING' } });
     } catch (error) {
       console.log('Pending orders error:', error);
     }
@@ -45,9 +45,9 @@ export async function GET() {
       // Последние заказы
       recentOrders = await prisma.order.findMany({
         take: 5,
-        orderBy: { created_at: 'desc' },
+        orderBy: { createdAt: 'desc' },
         include: {
-          order_items: true
+          items: true
         }
       });
     } catch (error) {
@@ -115,12 +115,12 @@ export async function GET() {
       } : mockData,
       recentOrders: recentOrders.length > 0 ? recentOrders.map(order => ({
         id: order.id,
-        orderNumber: order.order_number,
-        customerName: order.customer_name,
-        totalPrice: Number(order.total_price),
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        totalPrice: Number(order.totalPrice),
         status: order.status,
-        createdAt: order.created_at,
-        itemsCount: order.order_items?.length || 0
+        createdAt: order.createdAt,
+        itemsCount: order.items?.length || 0
       })) : [
         {
           id: '1',

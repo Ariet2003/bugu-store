@@ -34,7 +34,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700/50 h-16 flex items-center justify-between px-4 lg:px-6 shadow-lg backdrop-blur-sm">
+    <header className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700/50 h-16 flex items-center justify-between px-4 lg:px-6 shadow-lg backdrop-blur-sm relative z-50">
       {/* Logo and Brand */}
       <div className="flex items-center">
         {/* Logo */}
@@ -147,10 +147,10 @@ export default function Header() {
           {isProfileMenuOpen && (
             <>
               <div
-                className="fixed inset-0 z-40"
+                className="fixed inset-0 z-[60]"
                 onClick={handleClickOutside}
               />
-              <div className="absolute right-0 mt-3 w-56 rounded-xl shadow-2xl bg-gray-800/95 backdrop-blur-sm border border-gray-600/50 z-50 overflow-hidden">
+              <div className="absolute right-0 mt-3 w-56 rounded-xl shadow-2xl bg-gray-800/95 backdrop-blur-sm border border-gray-600/50 z-[70] overflow-hidden">
                 {/* Header */}
                 <div className="px-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-600/50 border-b border-gray-600/30">
                   <div className="flex items-center space-x-3">
