@@ -69,7 +69,6 @@ model Product {
   // Relations
   category Category          @relation(fields: [categoryId], references: [id])
   variants ProductVariant[]
-  images   ProductImage[]
 
   @@map("products")
 }
@@ -85,22 +84,36 @@ model ProductVariant {
   discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
 
   // Relations
-  product    Product     @relation(fields: [productId], references: [id])
+  product    Product           @relation(fields: [productId], references: [id])
   orderItems OrderItem[]
+  images     ProductImage[]
+  attributes ProductAttribute[]
 
   @@map("product_variants")
 }
 
 model ProductImage {
-  id        String  @id @default(uuid()) @db.Uuid
-  productId String  @map("product_id") @db.Uuid
-  imageUrl  String  @map("image_url")
-  isMain    Boolean @default(false) @map("is_main")
+  id               String  @id @default(uuid()) @db.Uuid
+  productVariantId String  @map("product_variant_id") @db.Uuid
+  imageUrl         String  @map("image_url")
+  isMain           Boolean @default(false) @map("is_main")
 
   // Relations
-  product Product @relation(fields: [productId], references: [id])
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
 
   @@map("product_images")
+}
+
+model ProductAttribute {
+  id               String @id @default(uuid()) @db.Uuid
+  productVariantId String @map("product_variant_id") @db.Uuid
+  name             String
+  value            String
+
+  // Relations
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+
+  @@map("product_attributes")
 }
 
 model Order {
