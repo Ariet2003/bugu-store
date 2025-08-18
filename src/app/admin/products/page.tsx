@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PlusIcon,
   PencilIcon,
@@ -37,6 +37,8 @@ import { useToast } from '@/hooks/useToast';
 interface Category {
   id: string;
   name: string;
+  parentId?: string;
+  children?: Category[];
 }
 
 interface Product {
@@ -158,10 +160,33 @@ export default function ProductsPage() {
     );
   };
 
+  // Получить все ID подкатегорий для выбранной категории (рекурсивно)
+  const getAllSubcategoryIds = (categoryId: string, categoriesList: Category[]): string[] => {
+    const subcategoryIds: string[] = [categoryId]; // Включаем саму категорию
+    
+    const findChildren = (parentId: string) => {
+      const children = categoriesList.filter(cat => cat.parentId === parentId);
+      children.forEach(child => {
+        subcategoryIds.push(child.id);
+        findChildren(child.id); // Рекурсивно ищем подкатегории
+      });
+    };
+    
+    findChildren(categoryId);
+    return subcategoryIds;
+  };
+
   // Фильтрация товаров
   const filteredProducts = products.filter(product => {
     const matchesSearch = smartSearch(product.name + ' ' + product.description, searchTerm);
-    const matchesCategory = !categoryFilter || product.categoryId === categoryFilter;
+    
+    // Фильтрация по категории с учетом подкатегорий
+    let matchesCategory = true;
+    if (categoryFilter) {
+      const allowedCategoryIds = getAllSubcategoryIds(categoryFilter, categories);
+      matchesCategory = allowedCategoryIds.includes(product.categoryId);
+    }
+    
     const matchesStatus = statusFilter === 'all' || 
       (statusFilter === 'active' && product.isActive) ||
       (statusFilter === 'inactive' && !product.isActive);
@@ -371,7 +396,7 @@ export default function ProductsPage() {
               className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200 shadow-lg hover:shadow-indigo-500/25"
             >
               <PlusIcon className="h-5 w-5" />
-              <span>Добавить товар</span>
+              <span>Добавить</span>
             </button>
           </div>
         </div>
@@ -452,11 +477,30 @@ export default function ProductsPage() {
                     className="bg-transparent text-white text-sm font-medium focus:outline-none cursor-pointer min-w-0 flex-1"
                   >
                     <option value="" className="bg-gray-800">Все категории</option>
-                    {categories.map(category => (
-                      <option key={category.id} value={category.id} className="bg-gray-800">
-                        {category.name}
-                      </option>
-                    ))}
+                    {categories
+                      .filter(category => !category.parentId) // Сначала показываем родительские категории
+                      .map(category => (
+                        <React.Fragment key={category.id}>
+                          <option value={category.id} className="bg-gray-800 font-semibold">
+                            {category.name}
+                          </option>
+                          {categories
+                            .filter(subcat => subcat.parentId === category.id)
+                            .map(subcategory => (
+                              <option key={subcategory.id} value={subcategory.id} className="bg-gray-800">
+                                ├─ {subcategory.name}
+                              </option>
+                            ))}
+                        </React.Fragment>
+                      ))}
+                    {/* Показываем категории без родителя, если есть orphaned категории */}
+                    {categories
+                      .filter(category => category.parentId && !categories.find(c => c.id === category.parentId))
+                      .map(category => (
+                        <option key={category.id} value={category.id} className="bg-gray-800 text-yellow-400">
+                          ⚠ {category.name}
+                        </option>
+                      ))}
                   </select>
                   <ChevronUpDownIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
                 </div>

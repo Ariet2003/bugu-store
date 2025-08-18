@@ -27,6 +27,8 @@ import ImageUploadModal from './ImageUploadModal';
 interface Category {
   id: string;
   name: string;
+  parentId?: string;
+  children?: Category[];
 }
 
 interface ProductVariant {
