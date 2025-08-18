@@ -28,7 +28,9 @@ const predefinedColors = [
 ];
 
 export default function ColorPicker({ selectedColor, onColorChange }: ColorPickerProps) {
-  const [customColor, setCustomColor] = useState(selectedColor.startsWith('#') ? selectedColor : '#ffffff');
+  const [customColor, setCustomColor] = useState(
+    selectedColor && selectedColor.startsWith('#') ? selectedColor : '#ffffff'
+  );
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
   const handlePredefinedColorSelect = (color: string) => {

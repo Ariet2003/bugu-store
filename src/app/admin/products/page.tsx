@@ -30,6 +30,7 @@ import {
 } from '@heroicons/react/24/outline';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AddProductModal from '@/components/admin/products/AddProductModal';
+import EditProductModal from '@/components/admin/products/EditProductModal';
 import { ToastContainer } from '@/components/admin/products/Toast';
 import { useToast } from '@/hooks/useToast';
 
@@ -229,13 +230,6 @@ export default function ProductsPage() {
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
-    setFormData({
-      name: product.name,
-      description: product.description,
-      categoryId: product.categoryId,
-      isActive: product.isActive,
-      variants: [] // TODO: Загрузить варианты продукта
-    });
     setIsEditModalOpen(true);
   };
 
@@ -285,9 +279,8 @@ export default function ProductsPage() {
   };
 
   // Обновление товара
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProduct || !formData.name.trim() || !formData.categoryId) return;
+  const handleUpdateProduct = async (data: ProductFormData) => {
+    if (!editingProduct) return;
 
     setFormLoading(true);
     try {
@@ -296,19 +289,23 @@ export default function ProductsPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(data)
       });
 
       if (response.ok) {
         await fetchProducts();
         closeModals();
+        // Показываем уведомление после закрытия модального окна
+        setTimeout(() => {
+          showSuccess('Товар обновлен', 'Изменения успешно сохранены');
+        }, 100);
       } else {
         const error = await response.json();
-        alert(error.error || 'Ошибка обновления товара');
+        showError('Ошибка обновления', error.error || 'Ошибка обновления товара');
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Ошибка обновления товара');
+      showError('Ошибка обновления', 'Ошибка обновления товара');
     } finally {
       setFormLoading(false);
     }
@@ -846,102 +843,18 @@ export default function ProductsPage() {
           onShowError={(title, message) => showError(title, message)}
         />
 
-        {/* Edit Modal */}
+        {/* Edit Product Modal */}
         {isEditModalOpen && editingProduct && (
-          <div className="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-800/95 backdrop-blur-md rounded-xl p-4 sm:p-6 w-full max-w-md border border-gray-700/50 shadow-2xl mx-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Редактировать товар</h2>
-                <button
-                  onClick={closeModals}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
-              </div>
-
-              <form onSubmit={handleUpdate} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Название товара
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Введите название..."
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Описание
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Введите описание..."
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Категория
-                  </label>
-                  <div className="flex items-center space-x-2 sm:space-x-3 bg-gray-700/30 border border-gray-600/50 rounded-lg px-3 sm:px-4 py-3">
-                    <TagIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
-                    <select
-                      value={formData.categoryId}
-                      onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                      className="bg-transparent text-white text-sm font-medium focus:outline-none cursor-pointer min-w-0 flex-1"
-                      required
-                    >
-                      <option value="" className="bg-gray-800">Выберите категорию</option>
-                      {categories.map(category => (
-                        <option key={category.id} value={category.id} className="bg-gray-800">
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronUpDownIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.isActive}
-                      onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                      className="rounded border-gray-600 bg-gray-700 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-sm text-gray-300">Активный товар</span>
-                  </label>
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={closeModals}
-                    className="flex-1 px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    Отмена
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={formLoading}
-                    className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-4 py-2 rounded-lg hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200 disabled:opacity-50"
-                  >
-                    {formLoading ? 'Сохранение...' : 'Сохранить'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <EditProductModal
+            isOpen={isEditModalOpen}
+            onClose={closeModals}
+            onSubmit={handleUpdateProduct}
+            categories={categories}
+            loading={formLoading}
+            productId={editingProduct.id}
+            onShowWarning={(title, message) => showWarning(title, message)}
+            onShowError={(title, message) => showError(title, message)}
+          />
         )}
 
         {/* Delete Modal */}

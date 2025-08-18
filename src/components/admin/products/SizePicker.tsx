@@ -193,16 +193,6 @@ export default function SizePicker({ selectedSize, onSizeChange }: SizePickerPro
           </div>
         )}
       </div>
-
-      {/* Size Guide Link */}
-      <div className="text-center">
-        <button
-          type="button"
-          className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors underline"
-        >
-          📏 Таблица размеров
-        </button>
-      </div>
     </div>
   );
 }

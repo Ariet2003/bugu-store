@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   XMarkIcon,
   PhotoIcon,
@@ -50,7 +50,7 @@ export default function ImageUploadModal({
 }: ImageUploadModalProps) {
   const { toasts, removeToast, showSuccess, showError } = useToast();
   const [images, setImages] = useState<ImageData[]>(
-    currentImages.map((url, index) => ({ url, isMain: index === 0 }))
+    (currentImages || []).map((url, index) => ({ url, isMain: index === 0 }))
   );
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [urlInput, setUrlInput] = useState('');
@@ -59,6 +59,11 @@ export default function ImageUploadModal({
   const [viewerIndex, setViewerIndex] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Обновляем images когда currentImages изменяется
+  useEffect(() => {
+    setImages((currentImages || []).map((url, index) => ({ url, isMain: index === 0 })));
+  }, [currentImages]);
 
   // Реальная загрузка файла в S3
   const uploadFile = async (file: File): Promise<string> => {
