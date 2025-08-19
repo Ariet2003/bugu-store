@@ -3,7 +3,7 @@ import {
   TagIcon,
   CubeIcon,
   ShoppingBagIcon,
-  ChartBarIcon,
+  UsersIcon,
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
@@ -41,12 +41,12 @@ export const navigation = [
     description: 'Структура каталога'
   },
   { 
-    name: 'Аналитика', 
-    href: '/admin/analytics', 
-    icon: ChartBarIcon,
+    name: 'Сотрудники и филиалы', 
+    href: '/admin/staff', 
+    icon: UsersIcon,
     color: 'text-indigo-400',
     hoverColor: 'group-hover:text-indigo-300',
-    description: 'Отчеты и метрики'
+    description: 'Управление персоналом'
   },
   { 
     name: 'Настройки', 
