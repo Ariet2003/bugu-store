@@ -41,6 +41,13 @@ enum PaymentStatus {
   FAILED
 }
 
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+}
+
 // Models
 model Category {
   id        String   @id @default(uuid()) @db.Uuid
@@ -131,6 +138,7 @@ model Order {
   // Relations
   items   OrderItem[]
   payment Payment?
+  audits  OrderAudit[]
 
   @@map("orders")
 }
@@ -170,4 +178,24 @@ model Setting {
   value String
 
   @@map("settings")
+}
+
+model OrderAudit {
+  id          String      @id @default(uuid()) @db.Uuid
+  orderId     String      @map("order_id") @db.Uuid
+  action      AuditAction
+  fieldName   String?     @map("field_name")   // Какое поле изменено
+  oldValue    String?     @map("old_value")    // Старое значение
+  newValue    String?     @map("new_value")    // Новое значение
+  adminId     String?     @map("admin_id")     // ID администратора (пока null, можно добавить позже)
+  adminName   String?     @map("admin_name")   // Имя администратора
+  comment     String?                          // Комментарий к изменению
+  ipAddress   String?     @map("ip_address")   // IP адрес
+  userAgent   String?     @map("user_agent")   // User Agent
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_audits")
 }
