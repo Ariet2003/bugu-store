@@ -82,8 +82,8 @@ export async function GET(request: Request) {
       orderBy.createdAt = sortOrder;
     }
 
-    // Получаем заказы с подсчетом общего количества
-    const [orders, totalCount] = await Promise.all([
+    // Получаем заказы с подсчетом общего количества и статистики
+    const [orders, totalCount, stats] = await Promise.all([
       prisma.order.findMany({
         where,
         include: {
@@ -115,7 +115,15 @@ export async function GET(request: Request) {
         skip,
         take: limit
       }),
-      prisma.order.count({ where })
+      prisma.order.count({ where }),
+      // Получаем статистику по статусам с теми же фильтрами
+      prisma.order.groupBy({
+        by: ['status'],
+        where,
+        _count: {
+          status: true
+        }
+      })
     ]);
 
     // Преобразуем данные для фронтенда
@@ -145,6 +153,21 @@ export async function GET(request: Request) {
       };
     });
 
+    // Обрабатываем статистику по статусам
+    const statusStats = {
+      PENDING: 0,
+      CONFIRMED: 0,
+      SHIPPED: 0,
+      COMPLETED: 0,
+      CANCELLED: 0
+    };
+
+    stats.forEach(stat => {
+      if (stat.status in statusStats) {
+        statusStats[stat.status as keyof typeof statusStats] = stat._count.status;
+      }
+    });
+
     return NextResponse.json({
       orders: transformedOrders,
       pagination: {
@@ -152,7 +175,8 @@ export async function GET(request: Request) {
         limit,
         total: totalCount,
         totalPages: Math.ceil(totalCount / limit)
-      }
+      },
+      statistics: statusStats
     });
   } catch (error) {
     console.error('Orders GET error:', error);

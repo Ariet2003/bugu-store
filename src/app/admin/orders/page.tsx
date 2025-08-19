@@ -27,6 +27,7 @@ import {
   ExclamationTriangleIcon,
   TruckIcon,
   EyeIcon,
+  CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { useToast } from '@/hooks/useToast';
@@ -114,6 +115,13 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statistics, setStatistics] = useState({
+    PENDING: 0,
+    CONFIRMED: 0,
+    SHIPPED: 0,
+    COMPLETED: 0,
+    CANCELLED: 0
+  });
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [contactTypeFilter, setContactTypeFilter] = useState<string>('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('all');
@@ -190,6 +198,13 @@ export default function OrdersPage() {
         setOrders(data.orders);
         setTotalPages(data.pagination.totalPages);
         setTotalItems(data.pagination.total);
+        setStatistics(data.statistics || {
+          PENDING: 0,
+          CONFIRMED: 0,
+          SHIPPED: 0,
+          COMPLETED: 0,
+          CANCELLED: 0
+        });
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -479,20 +494,83 @@ export default function OrdersPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-gray-800/60 to-gray-700/60 backdrop-blur-sm rounded-xl p-6 border border-gray-600/50">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Заказы</h1>
               <p className="text-gray-300">Управление заказами клиентов</p>
             </div>
             
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <div className="text-2xl font-bold text-white">{totalItems}</div>
-                <div className="text-sm text-gray-400">Всего заказов</div>
+            {/* Статистика */}
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+              {/* В ожидании */}
+              <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-lg p-2 backdrop-blur-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="p-1 bg-blue-500/20 rounded-md mb-1">
+                    <ClockIcon className="h-3 w-3 text-blue-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{statistics.PENDING}</div>
+                  <div className="text-xs text-blue-300">В ожидании</div>
+                </div>
+              </div>
+
+              {/* Подтверждён */}
+              <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 rounded-lg p-2 backdrop-blur-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="p-1 bg-yellow-500/20 rounded-md mb-1">
+                    <CheckCircleIcon className="h-3 w-3 text-yellow-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{statistics.CONFIRMED}</div>
+                  <div className="text-xs text-yellow-300">Подтверждён</div>
+                </div>
+              </div>
+
+              {/* Отправлен */}
+              <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-lg p-2 backdrop-blur-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="p-1 bg-purple-500/20 rounded-md mb-1">
+                    <TruckIcon className="h-3 w-3 text-purple-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{statistics.SHIPPED}</div>
+                  <div className="text-xs text-purple-300">Отправлен</div>
+                </div>
+              </div>
+
+              {/* Завершён */}
+              <div className="bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 rounded-lg p-2 backdrop-blur-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="p-1 bg-green-500/20 rounded-md mb-1">
+                    <CheckBadgeIcon className="h-3 w-3 text-green-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{statistics.COMPLETED}</div>
+                  <div className="text-xs text-green-300">Завершён</div>
+                </div>
+              </div>
+
+              {/* Отменён */}
+              <div className="bg-gradient-to-br from-red-500/10 to-red-600/5 border border-red-500/20 rounded-lg p-2 backdrop-blur-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="p-1 bg-red-500/20 rounded-md mb-1">
+                    <XMarkIcon className="h-3 w-3 text-red-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{statistics.CANCELLED}</div>
+                  <div className="text-xs text-red-300">Отменён</div>
+                </div>
+              </div>
+
+              {/* Всего заказов */}
+              <div className="bg-gradient-to-br from-gray-500/10 to-gray-600/5 border border-gray-500/20 rounded-lg p-2 backdrop-blur-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="p-1 bg-gray-500/20 rounded-md mb-1">
+                    <ShoppingBagIcon className="h-3 w-3 text-gray-400" />
+                  </div>
+                  <div className="text-sm font-bold text-white">{totalItems}</div>
+                  <div className="text-xs text-gray-300">Всего</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
 
         {/* Filters and Search */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-700/50">
